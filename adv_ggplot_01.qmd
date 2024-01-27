@@ -1,7 +1,7 @@
 ---
 title: "Advanced visualization with ggplot2"
 subtitle: "Challenge 1"
-author: "YOUR NAME"
+author: "Owen Suelflow"
 format: 
   html:
     self-contained: true
@@ -45,16 +45,74 @@ You will need to use reference pages and documentation to discover necessary too
 # Setup
 
 ```{r}
-# Code for loading packages and reading in data
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+weather <- read_csv("https://lmyint.github.io/212_spring_2024/data/sfo_weather.csv")
 ```
+# Wrangling
 
+```{r}
+weather<- weather %>%
+  group_by(Month) %>% 
+  mutate(MonthlyPrecip = max(CulmPrec))
+monthlines <- weather %>% filter(Day ==1) %>% 
+  filter(Month > 1) %>% 
+  select(dateInYear)
+monthlines2 <- weather %>% 
+  filter(Day == 15) %>% 
+  select(dateInYear)
+
+monthlyprecip<- monthlines2 %>% 
+  left_join(weather) %>% 
+  select(Month,MonthlyPrecip,dateInYear)
+```
 
 
 # Visualization
 
+
+## Precipitation Plot
 ```{r}
-# Code for recreating the visualization
-# Use as many code chunks as you need to organize your work well
+precipPlot<-weather %>% 
+ggplot(aes(dateInYear))+
+  geom_area(aes(group = Month,y = CulmPrec),fill = '#ebeae2')+
+  geom_line(aes(group = Month, y = CulmPrec),color = '#85c0e5')+
+  geom_vline(xintercept = monthlines$dateInYear,linetype=1, color = '#d3d3d3')+
+  annotate(geom='text',x = monthlyprecip$dateInYear+9,y =monthlyprecip$MonthlyPrecip+0.7, label=format(round(monthlyprecip$MonthlyPrecip, 2), nsmall = 2), size = 2.6)+
+  geom_point(data = subset(weather, RecordP),aes(x = dateInYear,y = CulmPrec),shape=25,fill="black")+
+  scale_y_continuous(breaks=c(0,4,8),limits=c(0,8))+
+  labs(x="",y="",title="Precipitation")+
+  theme_classic()+
+  theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
+```
+
+
+## Temperature Plot
+
+```{r}
+tempPlot <-weather %>% 
+  ggplot(aes(dateInYear)) +
+  geom_linerange(aes(ymin=RecordLow,ymax=RecordHigh),color="#ECEBE3",linewidth=1.5)+
+  geom_linerange(aes(ymin=NormalLow,ymax=NormalHigh),color="#C8B8BA",linewidth=1.5)+
+  geom_linerange(aes(ymin=Low,ymax=High),color="#A90248",linewidth=1.5)+
+  geom_vline(xintercept = monthlines$dateInYear,linetype=3,alpha=0.5)+
+  scale_x_continuous(breaks=monthlines2$dateInYear,labels=month.abb)+
+  geom_point(data = subset(weather, Record),aes(x = dateInYear,y = High),shape=25,fill="black")+
+  geom_text(data = subset(weather, Record),aes(x = dateInYear,y = High+10,label=RecordText),size=2.5)+
+  scale_y_continuous(breaks=c(0,40,80,120),limits=c(0,120))+
+  labs(x="",y="",title="Temperature")+
+  theme_classic()
+
+```
+
+## Combined Plot
+
+
+```{r}
+tempPlot / precipPlot+
+  plot_layout(heights = c(4, 1))+
+  plot_annotation(title="SFO weather in 2011",theme=theme(plot.title=element_text(hjust=0.5)))
 ```
 
 
