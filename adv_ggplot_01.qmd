@@ -123,9 +123,11 @@ tempPlot / precipPlot+
 If you use an AI tool (e.g., ChatGPT, Google Bard) to help with this assignment, please paste below the prompts you use and their associated output.
 
 **Prompt:**
-
+how can i remove the x scale in ggplot2
 **Output:**
+To remove the x-axis scale in ggplot2, you can use the theme() function and modify the axis.text.x and axis.ticks.x elements.
 
 Keep in mind that the use of AI has a [huge energy cost](https://lmyint.github.io/212_spring_2024/syllabus.html#artificial-intelligence-ai-use). Please describe an energy-saving activity that you can start engaging in to offset this cost.
 
 **Energy-saving activity:** 
+I can be more aware of my water usage, particularly showers.
